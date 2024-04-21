@@ -3,6 +3,7 @@ module main
 import net.http
 import net.html
 import os
+import time
 
 fn parse( mut url_list []string, url string)  {
 	contents := http.get(url) or {
@@ -56,10 +57,14 @@ fn check_if_valid_link(link string) bool {
 	return !end.contains('.')
 }
 
-fn main() {
-	initial_url := 'http://wp.test'
+fn seconds_to_nano_seconds(seconds f32) f32 {
+	return seconds * 1_000_000
+}
 
+fn main() {
+	initial_url := os.args[1]
 	file := setup()
+	nanoseconds := seconds_to_nano_seconds(0.2)
 
 	unsafe {
 		mut links := []string{}
@@ -79,13 +84,12 @@ fn main() {
 			}
 			links.delete(0)
 			write_to_file(file, link)
-			print('$link\n')
 			read_links << link
 
 			if check_if_valid_link(link) {
 				parse(mut links, link)
 			}
-
+			time.sleep(nanoseconds)
 		}
 	}
 
